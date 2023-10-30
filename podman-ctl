@@ -7,7 +7,7 @@ set -o pipefail
 #				VARIABLE DEFINITIONS
 # --------------------------------------------------------------------------- #
 
-image_name='http_img'
+image_name='http_img:latest'
 container_name='httpd'
 
 # --------------------------------------------------------------------------- #
@@ -25,10 +25,10 @@ say() {
 	echo "...................................................."
 }
 
-build_container() {
+build_image() {
 	say "building image"
 
-	podman build -t "$image_name" /home/jo/.
+	podman build -t "$image_name" .
 
 	if [ ${?} -ne 0 ]; then
 		error_out 'build failed'
@@ -42,7 +42,7 @@ run_container() {
 		
 	if [ ! ${?} -eq 0 ]; then
 
-		podman run -d --name "$container_name" localhost/httpd_img
+		podman run -d --name "$container_name" "$image_name"
 
 		if [ ${?} -ne 0 ]; then
 			error_out 'run failed'
@@ -86,17 +86,17 @@ if [ "${1:-none}" == "none" ] ; then
 	exit 1
 fi
 
-if [ ! -f /home/jo/Containerfile ]; then 
+if [ ! -f Containerfile ]; then 
 	echo "Containerfile doesn't exsit"
 	exit 1
 fi
 
 if [ "$1" == "build-and-run" ]; then
-	build_container
+	build_image
 	run_container
 	log_container
 elif [ "$1" == "build" ]; then
-	build_container
+	build_image
 elif [ "$1" == "run" ]; then
 	run_container
 elif [ "$1" == "log" ]; then
